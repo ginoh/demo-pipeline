@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: demo-pipeline
+spec:
+  tasks:
+    - name: build
+      taskRef:
+        name: echo-step
+      params:
+        - name: name
+          value: build
+    - name: deploy
+      taskRef:
+        name: echo-step
+      params:
+        - name: name
+          value: deploy
+      runAfter:
+        - build
+    - name: test
+      taskRef:
+        name: echo-step
+      params:
+        - name: name
+          value: test
+      runAfter:
+        - deploy        
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: echo-step
+spec:
+  params:
+    - name: name
+      description: echo this message
+  steps:
+    - name: echo
+      image: ubuntu
+      script: |
+        stepName=$(params.name)
+        if [ "$stepName" = "build" -o "$stepName" = "deploy" -o "$stepName" = "test" ];then
+            echo "$stepName step"
+            exit 0
+        fi
+
+        echo "unknown step"
+        exit 1        
