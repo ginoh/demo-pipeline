@@ -18,12 +18,12 @@ spec:
           value: deploy
       runAfter:
         - build
-    - name: test
+    - name: bluegreen
       taskRef:
         name: echo-step
       params:
         - name: name
-          value: test
+          value: bluegreen
       runAfter:
         - deploy        
 ---
@@ -39,8 +39,11 @@ spec:
     - name: echo
       image: ubuntu
       script: |
-        stepName=$(params.name)
-        if [ "$stepName" = "build" -o "$stepName" = "deploy" -o "$stepName" = "test" ];then
+        stepName="bluegreen"
+        if [ "$stepName" = "build" \
+            -o "$stepName" = "deploy" \
+            -o "$stepName" = "test" \
+            -o "$stepName" = "bluegreen" ];then
             echo "$stepName step"
             exit 0
         fi
